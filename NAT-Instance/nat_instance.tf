@@ -20,13 +20,13 @@ resource "aws_instance" "nat_instance" {
   instance_type               = "t4g.micro"
   
   subnet_id                   = aws_subnet.pub-subnet.id
-  key_name                    = "sulaiman"
+  key_name                    = var.key_name
   vpc_security_group_ids      = [aws_security_group.pub-SG.id]
   associate_public_ip_address = true
   source_dest_check           = false
 
   tags = {
-    Name       = "${var.client_name}-NAT-Instance"
+    Name       = "${var.client_name}-Instance"
     Managed_by = var.managed_by
   }
 

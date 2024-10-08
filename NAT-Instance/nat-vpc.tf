@@ -1,7 +1,7 @@
 # 1. AWS VPC (Virtual Private Cloud)
 
 resource "aws_vpc" "nat-vpc" {
-  cidr_block       = "10.0.0.0/16"
+  cidr_block       = var.vpc_cidr_block
   
 
 tags = {
@@ -25,7 +25,7 @@ tags = {
 
 resource "aws_subnet" "pub-subnet" {
   vpc_id     = aws_vpc.nat-vpc.id
-  cidr_block = "10.0.1.0/24"
+  cidr_block = var.public_subnet_cidr_blocks
 
 tags = {
     Name       = "${var.client_name}-PUB_SUBNET"
@@ -37,7 +37,7 @@ tags = {
 
 resource "aws_subnet" "pvt-subnet" {
   vpc_id     = aws_vpc.nat-vpc.id
-  cidr_block = "10.0.2.0/24"
+  cidr_block = var.private_subnet_cidr_blocks
 
 tags = {
     Name       = "${var.client_name}-PVT_SUBNET"
@@ -51,7 +51,7 @@ resource "aws_route_table" "pub-RT" {
   vpc_id = aws_vpc.nat-vpc.id
 
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block = var.internet_gatewys_cidr_blocks
     gateway_id = aws_internet_gateway.igw-1.id
   }
 
@@ -97,14 +97,14 @@ ingress {
     from_port        = 0
     to_port          = 0
     protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
+    cidr_blocks      = var.public_sg_in_cidr_blocks
     
   }
 egress {
     from_port        = 0
     to_port          = 0
     protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
+    cidr_blocks      = var.public_sg_en_cidr_blocks
     
   }
 
@@ -126,19 +126,19 @@ ingress {
     from_port        = 22
     to_port          = 22
     protocol         = "tcp"
-    cidr_blocks      = ["10.0.1.0/24"]
+    cidr_blocks      = var.private_sg_in_22_cidr_blocks
   }
 ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  
+    cidr_blocks = var.private_sg_in_80_cidr_blocks
 }   
 egress {
     from_port        = 0
     to_port          = 0
     protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
+    cidr_blocks      = var.public_sg_en_cidr_blocks
     
   }
 
@@ -151,10 +151,10 @@ egress {
 }
 # 11. AWS EC2 - Web1 (Public Subnet 1)
 resource "aws_instance" "pub-vm" {
-  ami                         = "ami-05134c8ef96964280"
+  ami                         = var.ami
   instance_type               = var.my-instance-type
   subnet_id                   = aws_subnet.pub-subnet.id
-  key_name                    = "sulaiman"
+  key_name                    = var.key_name
   associate_public_ip_address = "true"
   vpc_security_group_ids      = [aws_security_group.pub-SG.id]
 
@@ -167,10 +167,10 @@ resource "aws_instance" "pub-vm" {
 
 # 12. AWS EC2  (Private Subnet 1)
 resource "aws_instance" "pvt-vm" {
-  ami           = "ami-05134c8ef96964280"
+  ami           = var.ami
   instance_type = var.my-instance-type
   subnet_id     = aws_subnet.pvt-subnet.id
-  key_name      = "sulaiman"
+  key_name      = var.key_name
 
   vpc_security_group_ids = [aws_security_group.pvt-SG.id]
 
