@@ -16,14 +16,14 @@ data "aws_ami" "nat_instance" {
 
 # EC2 NAT Instance
 resource "aws_instance" "nat_instance" {
-  ami                         = "ami-03455155bfe406fa1"
-  instance_type               = "t4g.micro"
+  ami                         = var.ami_nat
+  instance_type               = var.instance_type_nat
   
   subnet_id                   = aws_subnet.pub-subnet.id
   key_name                    = var.key_name
   vpc_security_group_ids      = [aws_security_group.pub-SG.id]
-  associate_public_ip_address = true
-  source_dest_check           = false
+  associate_public_ip_address = var.associate_public_ip_address_nat
+  source_dest_check           = var.source_dest_check
 
   tags = {
     Name       = "${var.client_name}-Instance"
@@ -67,6 +67,6 @@ output "network_interface_id" {
 
 resource "aws_route" "update" {
   route_table_id            = aws_route_table.pvt-RT.id
-  destination_cidr_block    = "0.0.0.0/0"
+  destination_cidr_block    = var.nat_rt_add_destination_cidr_block
   network_interface_id      = aws_instance.nat_instance.primary_network_interface_id
 }

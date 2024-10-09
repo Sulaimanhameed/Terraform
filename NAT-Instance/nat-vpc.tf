@@ -51,7 +51,7 @@ resource "aws_route_table" "pub-RT" {
   vpc_id = aws_vpc.nat-vpc.id
 
   route {
-    cidr_block = var.internet_gatewys_cidr_blocks
+    cidr_block = var.internet_gatewys_rt_add_destination_cidr_block
     gateway_id = aws_internet_gateway.igw-1.id
   }
 
@@ -65,11 +65,6 @@ resource "aws_route_table" "pub-RT" {
 # 6. awsPrivate Route Table
 resource "aws_route_table" "pvt-RT" {
   vpc_id = aws_vpc.nat-vpc.id
-
-  # route {
-  #   cidr_block  = "0.0.0.0/0"
-  #   instance_id = [aws_instance.nat_instance.id]
-  # }
  
   tags = {
     Name       = "${var.client_name}-PVT-RT"
@@ -86,7 +81,7 @@ resource "aws_route_table_association" "asso-pvt-subnet-rt" {
   subnet_id      = aws_subnet.pvt-subnet.id
   route_table_id = aws_route_table.pvt-RT.id
 }
-# 9. AWS public Security Group
+# 9. AWS public Security Group 
 
 resource "aws_security_group" "pub-SG" {
   name        = "${var.client_name}-PUB-SG"
@@ -94,21 +89,19 @@ resource "aws_security_group" "pub-SG" {
   vpc_id      = aws_vpc.nat-vpc.id
 
 ingress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
+    from_port        = var.public_sg_in_from_port
+    to_port          = var.public_sg_in_to_port
+    protocol         = var.public_sg_in_protocol
     cidr_blocks      = var.public_sg_in_cidr_blocks
     
   }
 egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = var.public_sg_en_cidr_blocks
+    from_port        = var.common_sg_eg_from_prot
+    to_port          = var.common_sg_eg_to_prot
+    protocol         = var.common_sg_eg_protocol
+    cidr_blocks      = var.common_sg_eg_cidr_blocks
     
   }
-
-
 
   tags = {
     Name       = "${var.client_name}-PUB-SG"
@@ -123,27 +116,24 @@ resource "aws_security_group" "pvt-SG" {
   vpc_id      = aws_vpc.nat-vpc.id
 
 ingress {
-    from_port        = 22
-    to_port          = 22
-    protocol         = "tcp"
+    from_port        = var.pvivate_sg_in_22_from_port
+    to_port          = var.private_sg_in_22_to_port
+    protocol         = var.private_sg_in_22_protocol
     cidr_blocks      = var.private_sg_in_22_cidr_blocks
   }
 ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
+    from_port   = var.pvivate_sg_in_80_from_port
+    to_port     = var.private_sg_in_80_to_port
+    protocol    = var.private_sg_in_80_protocol
     cidr_blocks = var.private_sg_in_80_cidr_blocks
 }   
 egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = var.public_sg_en_cidr_blocks
+    from_port        = var.common_sg_eg_from_prot
+    to_port          = var.common_sg_eg_to_prot
+    protocol         = var.common_sg_eg_protocol
+    cidr_blocks      = var.common_sg_eg_cidr_blocks
     
   }
-
-
-
   tags = {
     Name       = "${var.client_name}-PVT-SG"
     Managed_by = "${var.managed_by}"
@@ -155,9 +145,9 @@ resource "aws_instance" "pub-vm" {
   instance_type               = var.my-instance-type
   subnet_id                   = aws_subnet.pub-subnet.id
   key_name                    = var.key_name
-  associate_public_ip_address = "true"
+  associate_public_ip_address = var.associate_public_ip_address
   vpc_security_group_ids      = [aws_security_group.pub-SG.id]
-
+  
 
   tags = {
     Name       = "${var.client_name}-PUB-VM"
@@ -167,11 +157,11 @@ resource "aws_instance" "pub-vm" {
 
 # 12. AWS EC2  (Private Subnet 1)
 resource "aws_instance" "pvt-vm" {
-  ami           = var.ami
-  instance_type = var.my-instance-type
-  subnet_id     = aws_subnet.pvt-subnet.id
-  key_name      = var.key_name
-
+  ami               = var.ami
+  instance_type     = var.my-instance-type
+  subnet_id         = aws_subnet.pvt-subnet.id
+  key_name          = var.key_name
+  
   vpc_security_group_ids = [aws_security_group.pvt-SG.id]
 
 
