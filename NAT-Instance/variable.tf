@@ -151,11 +151,17 @@ variable "source_dest_check" {
   type = string
   default = "false"
 }
-
-
-
-
-
-
-
-
+variable "nat_script" {
+  default = <<-EOF
+#!/bin/bash
+set -e
+yum update -y
+yum install -y iptables-services
+echo "net.ipv4.ip_forward = 1" | tee -a /etc/sysctl.conf
+sysctl -p
+sudo iptables -t nat -A POSTROUTING -o ens5 -j MASQUERADE
+service iptables save
+systemctl enable iptables
+systemctl start iptables
+EOF
+}

@@ -40,7 +40,7 @@ private_sg_in_80_to_port      = "80"
 private_sg_in_80_protocol     = "tcp"
 
 # 7. public and private instance 
-my-instance-type              = "t2.small"
+my-instance-type              = "t2.micro"
 ami                           = "ami-05134c8ef96964280"
 key_name                      = "sulaiman"
 associate_public_ip_address   = "true"
@@ -50,3 +50,15 @@ ami_nat                         = "ami-03455155bfe406fa1"
 instance_type_nat               = "t4g.micro"
 associate_public_ip_address_nat = "true"
 source_dest_check               = "false"
+nat_script =  <<-EOF
+#!/bin/bash
+set -e
+yum update -y
+yum install -y iptables-services
+echo "net.ipv4.ip_forward = 1" | tee -a /etc/sysctl.conf
+sysctl -p
+sudo iptables -t nat -A POSTROUTING -o ens5 -j MASQUERADE
+service iptables save
+systemctl enable iptables
+systemctl start iptables
+EOF
