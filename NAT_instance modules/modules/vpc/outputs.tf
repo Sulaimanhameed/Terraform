@@ -1,9 +1,15 @@
-output "nat-vpc" {
-  value = aws_vpc.nat-vpc.id
+output "vpc_id" {
+  value = aws_vpc.main.id
 }
-output "pub-subnet" {
-  value = aws_subnet.pub-subnet.id
+
+output "public_subnet_id" {
+  value = aws_subnet.public.id
 }
-output "pvt-subnet" {
-  value = aws_subnet.pvt-subnet.id
+
+output "private_subnet_id" {
+  value = aws_subnet.private.id
+}
+
+output "private_route_table_id" {
+  value = aws_route_table.private.id
 }

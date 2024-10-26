@@ -1,16 +1,19 @@
-output "pub-SG" {
-  value = module.sg.pub-SG
-}
-output "pvt-SG" {
-  value = module.sg.pvt-SG
+output "vpc_id" {
+  value = module.vpc.vpc_id
 }
 
-output "nat-vpc" {
-  value = module.vpc.nat-vpc
+output "public_subnet_id" {
+  value = module.vpc.public_subnet_id
 }
-output "pub-subnet" {
-  value = module.vpc.pub-subnet
+
+output "private_subnet_id" {
+  value = module.vpc.private_subnet_id
 }
-output "pvt-subnet" {
-  value = module.vpc.pvt-subnet
+
+output "nat_instance_id" {
+  value = module.nat.nat_instance_id
+}
+
+output "nat_instance_public_ip" {
+  value = module.nat.nat_instance_public_ip
 }
