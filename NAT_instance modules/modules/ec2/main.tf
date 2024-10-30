@@ -32,12 +32,13 @@ resource "aws_instance" "nat_instance" {
     },
     var.tags
   )
-  user_data = var.nat_script
+  user_data = var.user_data
 }
 
+# update the  private route table
 
 resource "aws_route" "rt_update" {
   route_table_id         = var.private_route_table_id
-  destination_cidr_block = "0.0.0.0/0"
+  destination_cidr_block = var.destination_cidr_block-nat_ec2
   network_interface_id   = aws_instance.nat_instance.primary_network_interface_id
 }
