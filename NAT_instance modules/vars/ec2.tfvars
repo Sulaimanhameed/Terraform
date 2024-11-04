@@ -43,17 +43,10 @@ application = "NAT_INSTANCE"
 
 # CIDR Ingress Variables
 create_ingress_cidr    = true
-ingress_cidr_from_port = [22, 80, 443, 0]
-ingress_cidr_to_port   = [22, 80, 443, 0]
-ingress_cidr_protocol  = ["tcp", "tcp", "tcp", "-1"]
-ingress_cidr_block     = ["0.0.0.0/0", "0.0.0.0/0", "0.0.0.0/0","0.0.0.0/0"]
-
-# Security Group Ingress Variables
-create_ingress_sg          = false
-ingress_sg_from_port       = [80]
-ingress_sg_to_port         = [80]
-ingress_sg_protocol        = ["tcp"]
-ingress_security_group_ids = ["0.0.0.0/0"]
+ingress_cidr_from_port = [0]
+ingress_cidr_to_port   = [0]
+ingress_cidr_protocol  = ["-1"]
+ingress_cidr_block     = ["0.0.0.0/0"]
 
 # CIDR Egress Variables
 create_egress_cidr    = true
@@ -62,9 +55,3 @@ egress_cidr_to_port   = [0]
 egress_cidr_protocol  = ["-1"]
 egress_cidr_block     = ["0.0.0.0/0"]
 
-# Security Group Egress Variables
-create_egress_sg          = false
-egress_sg_from_port       = [0]
-egress_sg_to_port         = [0]
-egress_sg_protocol        = ["-1"]
-egress_security_group_ids = ["0.0.0.0/0"]
